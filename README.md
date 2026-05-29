@@ -2,7 +2,7 @@
 
 Notes taking application. **Create** and **store** notes with **images**. It allows **searching** notes along side.
 
-A sleek, modern notes-taking application built with **FastAPI** (backend) and vanilla **HTML/CSS/JavaScript** (frontend), backed by **PostgreSQL**.
+A sleek, modern notes-taking application built with **FastAPI** (backend) and vanilla **HTML/CSS/JavaScript** (frontend), backed by **SQLite**.
 
 ## Features
 
@@ -13,10 +13,10 @@ A sleek, modern notes-taking application built with **FastAPI** (backend) and va
 - **Full CRUD** — Create, read, update, and archive/delete notes
 - **Search & Filter** — Filter by category, sub-category, priority, archived status, or full-text search on title + body + tags
 - **Dark / Light Theme** — Toggle with Sun/Moon icon, persisted in localStorage
-- **Database Backup** — Download a full PostgreSQL SQL dump via `pg_dump` from the sidebar
+- **Database Backup** — Download a full SQLite SQL dump via `pg_dump` from the sidebar
 - **Database Restore** — Upload a previous `.sql` backup to restore data via `psql`
 - **Responsive** — Works on desktop and mobile
-- **Structured Data** - Uses SQL Database to stored data. PostgreSQL is used in current implementation.  
+- **Structured Data** - Uses SQL Database to stored data. SQLite is used in current implementation.  
 
 ## Tech Stack
 
@@ -24,7 +24,7 @@ A sleek, modern notes-taking application built with **FastAPI** (backend) and va
 | -------- | ------------------------------------------- |
 | Backend  | Python 3.11+, FastAPI, SQLAlchemy,          |
 | Frontend | HTML5, CSS3 (custom properties), Vanilla JS |
-| Database | PostgreSQL                                  |
+| Database | SQLite                                  |
 
 ## Additional Note Fields 
 
@@ -42,7 +42,7 @@ A sleek, modern notes-taking application built with **FastAPI** (backend) and va
 ### 1. Prerequisites
 
 - Python 3.11+
-- PostgreSQL running locally
+- SQLite running locally
 
 ### 2. Create the database
 
@@ -52,11 +52,9 @@ createdb notes_app
 
 ### 3. Configure the connection
 
-Set the `DATABASE_URL` environment variable (defaults to `postgresql://postgres:postgres@localhost:5432/notes_app`):
+- DATA_DIR = ./data/ (auto-created next to the script)
+- DATABASE_URL = sqlite:///data/notes_app.db (overridable via env var)
 
-```bash
-export DATABASE_URL="postgresql://user:password@localhost:5432/notes_app"
-```
 
 ### 4. Install dependencies
 
@@ -82,7 +80,7 @@ Both features are accessible from the **Backup** section in the sidebar. Click t
 
 ### Download Backup
 
-Click **Download** (or the backup icon in the collapsed sidebar) to download a full PostgreSQL SQL dump (`pg_dump`) of the current database. The file is named `notes_backup_YYYY-MM-DD.sql`.
+Click **Download** (or the backup icon in the collapsed sidebar) to download a full SQLite SQL dump (`pg_dump`) of the current database. The file is named `notes_backup_YYYY-MM-DD.sql`.
 
 Requires `pg_dump` to be installed on the server.
 
@@ -102,7 +100,7 @@ notes_app/
 ├── database.py          # SQLAlchemy engine & session
 ├── models.py            # ORM models (Category, SubCategory, Note, NoteImage)
 ├── schemas.py           # Pydantic request/response schemas
-├── init_db.sql          # PostgreSQL schema with enum & indexes
+├── init_db.sql          # SQLite schema with enum & indexes
 ├── requirements.txt
 ├── README.md
 ├── uploads/             # User-uploaded images (auto-created)
