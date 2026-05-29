@@ -1,18 +1,17 @@
 import os
 import shutil
-import subprocess
 import tempfile
 from datetime import date, datetime
+from pathlib import Path
 from typing import List, Optional
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from database import DATABASE_URL, Base, engine, get_db
+from database import DATA_DIR, DATABASE_URL, Base, engine, get_db
 from models import Category, Note, NoteImage, SubCategory
 from schemas import (
     CategoryCreate,
@@ -26,17 +25,6 @@ from schemas import (
 )
 
 Base.metadata.create_all(bind=engine)
-
-# Sync all SERIAL sequences to prevent duplicate-key errors after restore/manual inserts
-with engine.connect() as conn:
-    for tbl in ["categories", "sub_categories", "notes", "note_images"]:
-        try:
-            conn.execute(
-                text(f"SELECT setval(pg_get_serial_sequence('{tbl}', 'id'), COALESCE(MAX(id), 1)) FROM {tbl}")
-            )
-        except Exception:
-            pass
-    conn.commit()
 
 app = FastAPI(title="Notes App")
 
@@ -64,44 +52,39 @@ async def favicon():
 # ── Backup ────────────────────────────────────────────────────────────────────
 
 
+DB_FILE = os.path.join(DATA_DIR, "notes_app.db")
+
+
 @app.get("/api/backup")
 def backup():
     today = date.today().isoformat()
-    result = subprocess.run(
-        ["pg_dump", "--no-owner", "--no-acl", f"--dbname={DATABASE_URL}"],
-        capture_output=True, text=True,
-    )
-    if result.returncode != 0:
-        raise HTTPException(500, f"pg_dump failed: {result.stderr}")
-    return Response(
-        content=result.stdout,
-        media_type="application/sql",
-        headers={"Content-Disposition": f'attachment; filename="notes_backup_{today}.sql"'},
+    if not os.path.exists(DB_FILE):
+        raise HTTPException(404, "Database file not found")
+    return FileResponse(
+        path=DB_FILE,
+        media_type="application/octet-stream",
+        filename=f"notes_backup_{today}.db",
     )
 
 
 @app.post("/api/restore")
 def restore(file: UploadFile = File(...)):
-    if not file.filename.endswith(".sql"):
-        raise HTTPException(400, "Only .sql files are accepted")
+    if not file.filename.endswith(".db"):
+        raise HTTPException(400, "Only .db files accepted")
     try:
-        with tempfile.NamedTemporaryFile(mode="wb", suffix=".sql", delete=False) as tmp:
-            tmp.write(file.file.read())
+        content = file.file.read()
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as tmp:
+            tmp.write(content)
             tmp_path = tmp.name
-        result = subprocess.run(
-            ["psql", "--dbname", DATABASE_URL, "--file", tmp_path, "--echo-errors"],
-            capture_output=True, text=True,
-        )
-        if result.returncode != 0:
-            raise HTTPException(500, f"Restore failed: {result.stderr[:500]}")
+
+        engine.dispose()
+        shutil.copy2(tmp_path, DB_FILE)
+        Base.metadata.create_all(bind=engine)
         return {"message": "Restore successful"}
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(500, f"Restore failed: {str(e)}")
     finally:
         try:
-            import os
             os.unlink(tmp_path)
         except Exception:
             pass
