@@ -2,7 +2,7 @@
 
 Notes taking application. **Create** and **store** notes with **images**. It allows **searching** notes along side.
 
-A sleek, modern notes-taking application built with **FastAPI** (backend) and vanilla **HTML/CSS/JavaScript** (frontend), backed by **PostgreSQL**.
+A sleek, modern notes-taking application built with **FastAPI** (backend) and vanilla **HTML/CSS/JavaScript** (frontend), backed by **SQLite**.
 
 ## Features
 
@@ -13,18 +13,18 @@ A sleek, modern notes-taking application built with **FastAPI** (backend) and va
 - **Full CRUD** — Create, read, update, and archive/delete notes
 - **Search & Filter** — Filter by category, sub-category, priority, archived status, or full-text search on title + body + tags
 - **Dark / Light Theme** — Toggle with Sun/Moon icon, persisted in localStorage
-- **Database Backup** — Download a full PostgreSQL SQL dump via `pg_dump` from the sidebar
-- **Database Restore** — Upload a previous `.sql` backup to restore data via `psql`
+- **Database Backup** — Download the SQLite database file from the sidebar
+- **Database Restore** — Upload a previous `.db` backup file to restore data
 - **Responsive** — Works on desktop and mobile
-- **Structured Data** - Uses SQL Database to stored data. PostgreSQL is used in current implementation.  
+- **Structured Data** - Uses SQL Database to store data. SQLite is used in the current implementation.  
 
 ## Tech Stack
 
 | Layer    | Technology                                  |
 | -------- | ------------------------------------------- |
-| Backend  | Python 3.11+, FastAPI, SQLAlchemy,          |
+| Backend  | Python 3.11+, FastAPI, SQLAlchemy           |
 | Frontend | HTML5, CSS3 (custom properties), Vanilla JS |
-| Database | PostgreSQL                                  |
+| Database | SQLite                                      |
 
 ## Additional Note Fields 
 
@@ -42,29 +42,22 @@ A sleek, modern notes-taking application built with **FastAPI** (backend) and va
 ### 1. Prerequisites
 
 - Python 3.11+
-- PostgreSQL running locally
 
-### 2. Create the database
-
-```bash
-createdb notes_app
-```
-
-### 3. Configure the connection
-
-Set the `DATABASE_URL` environment variable (defaults to `postgresql://postgres:postgres@localhost:5432/notes_app`):
-
-```bash
-export DATABASE_URL="postgresql://user:password@localhost:5432/notes_app"
-```
-
-### 4. Install dependencies
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Run the application
+### 3. (Optional) Configure the connection
+
+The database defaults to `sqlite:///data/notes_app.db`. Override with the `DATABASE_URL` environment variable:
+
+```bash
+export DATABASE_URL="sqlite:///path/to/custom.db"
+```
+
+### 4. Run the application
 
 ```bash
 uvicorn main:app --reload
@@ -72,7 +65,7 @@ uvicorn main:app --reload
 
 Open [http://localhost:8000](http://localhost:8000) in your browser.
 
-### 6. API documentation
+### 5. API documentation
 
 FastAPI auto-generates interactive docs at [http://localhost:8000/docs](http://localhost:8000/docs).
 
@@ -82,15 +75,11 @@ Both features are accessible from the **Backup** section in the sidebar. Click t
 
 ### Download Backup
 
-Click **Download** (or the backup icon in the collapsed sidebar) to download a full PostgreSQL SQL dump (`pg_dump`) of the current database. The file is named `notes_backup_YYYY-MM-DD.sql`.
-
-Requires `pg_dump` to be installed on the server.
+Click **Download** to download the SQLite database file (`notes_backup_YYYY-MM-DD.db`). This is a complete snapshot of all your notes, categories, and image metadata.
 
 ### Restore Backup
 
-Click **Restore** and select a `.sql` backup file. The file is uploaded and applied via `psql`, restoring all tables and data.
-
-Requires `psql` to be installed on the server.
+Click **Restore** and select a previous `.db` backup file to replace the current database. The app will automatically re-create the tables on the next startup.
 
 > **Warning:** Restoring overwrites existing data. There is no undo.
 
@@ -102,9 +91,9 @@ notes_app/
 ├── database.py          # SQLAlchemy engine & session
 ├── models.py            # ORM models (Category, SubCategory, Note, NoteImage)
 ├── schemas.py           # Pydantic request/response schemas
-├── init_db.sql          # PostgreSQL schema with enum & indexes
 ├── requirements.txt
 ├── README.md
+├── data/                # SQLite database file (auto-created)
 ├── uploads/             # User-uploaded images (auto-created)
 ├── templates/
 │   └── index.html       # Single-page application UI
