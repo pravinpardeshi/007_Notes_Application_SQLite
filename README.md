@@ -13,10 +13,17 @@ A sleek, modern notes-taking application built with **FastAPI** (backend) and va
 - **Full CRUD** — Create, read, update, and archive/delete notes
 - **Search & Filter** — Filter by category, sub-category, priority, archived status, or full-text search on title + body + tags
 - **Dark / Light Theme** — Toggle with Sun/Moon icon, persisted in localStorage
+<<<<<<< HEAD
 - **Database Backup** — Download the SQLite database file from the sidebar
 - **Database Restore** — Upload a previous `.db` backup file to restore data
 - **Responsive** — Works on desktop and mobile
 - **Structured Data** - Uses SQL Database to store data. SQLite is used in the current implementation.  
+=======
+- **Database Backup** — Download a full SQLite SQL dump via `pg_dump` from the sidebar
+- **Database Restore** — Upload a previous `.sql` backup to restore data via `psql`
+- **Responsive** — Works on desktop and mobile
+- **Structured Data** - Uses SQL Database to stored data. SQLite is used in current implementation.  
+>>>>>>> 2d58853452d56b6c2969bc82c3d15290cf7f57d5
 
 ## Tech Stack
 
@@ -24,7 +31,11 @@ A sleek, modern notes-taking application built with **FastAPI** (backend) and va
 | -------- | ------------------------------------------- |
 | Backend  | Python 3.11+, FastAPI, SQLAlchemy           |
 | Frontend | HTML5, CSS3 (custom properties), Vanilla JS |
+<<<<<<< HEAD
 | Database | SQLite                                      |
+=======
+| Database | SQLite                                  |
+>>>>>>> 2d58853452d56b6c2969bc82c3d15290cf7f57d5
 
 ## Additional Note Fields 
 
@@ -42,8 +53,26 @@ A sleek, modern notes-taking application built with **FastAPI** (backend) and va
 ### 1. Prerequisites
 
 - Python 3.11+
+<<<<<<< HEAD
 
 ### 2. Install dependencies
+=======
+- SQLite running locally
+
+### 2. Create the database
+
+```bash
+createdb notes_app
+```
+
+### 3. Configure the connection
+
+- DATA_DIR = ./data/ (auto-created next to the script)
+- DATABASE_URL = sqlite:///data/notes_app.db (overridable via env var)
+
+
+### 4. Install dependencies
+>>>>>>> 2d58853452d56b6c2969bc82c3d15290cf7f57d5
 
 ```bash
 pip install -r requirements.txt
@@ -75,7 +104,13 @@ Both features are accessible from the **Backup** section in the sidebar. Click t
 
 ### Download Backup
 
+<<<<<<< HEAD
 Click **Download** to download the SQLite database file (`notes_backup_YYYY-MM-DD.db`). This is a complete snapshot of all your notes, categories, and image metadata.
+=======
+Click **Download** (or the backup icon in the collapsed sidebar) to download a full SQLite SQL dump (`pg_dump`) of the current database. The file is named `notes_backup_YYYY-MM-DD.sql`.
+
+Requires `pg_dump` to be installed on the server.
+>>>>>>> 2d58853452d56b6c2969bc82c3d15290cf7f57d5
 
 ### Restore Backup
 
@@ -91,6 +126,10 @@ notes_app/
 ├── database.py          # SQLAlchemy engine & session
 ├── models.py            # ORM models (Category, SubCategory, Note, NoteImage)
 ├── schemas.py           # Pydantic request/response schemas
+<<<<<<< HEAD
+=======
+├── init_db.sql          # SQLite schema with enum & indexes
+>>>>>>> 2d58853452d56b6c2969bc82c3d15290cf7f57d5
 ├── requirements.txt
 ├── README.md
 ├── data/                # SQLite database file (auto-created)
